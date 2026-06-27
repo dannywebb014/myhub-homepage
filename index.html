@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="myhub. — your personal app suite" />
+  <title>myhub.</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg:   #0F0F11;
+      --text: #F0F0F4;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      gap: 4.5rem;
+    }
+
+    /* ── Title ── */
+
+    .title {
+      font-size: clamp(4rem, 11vw, 7rem);
+      font-weight: 700;
+      letter-spacing: -0.055em;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .title-dot { color: #B4A9FF; }
+
+    /* ── Grid ── */
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      width: 100%;
+      max-width: 840px;
+    }
+
+    /* ── Card base ── */
+
+    .card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      min-height: 190px;
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--text);
+      overflow: hidden;
+      transition: transform 230ms ease,
+                  box-shadow 230ms ease,
+                  background-color 230ms ease,
+                  border-color 230ms ease;
+    }
+
+    /* Accent top bar — reveals on hover */
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 2px;
+      opacity: 0;
+      transition: opacity 230ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 4px;
+    }
+
+    .card-name {
+      font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    /* ── foodhub — coral ── */
+
+    .card-food {
+      background-color: rgba(255, 146, 112, 0.05);
+      border: 1px solid rgba(255, 146, 112, 0.2);
+    }
+    .card-food::before   { background: #FF9270; }
+    .card-food:hover     { background-color: rgba(255, 146, 112, 0.09);
+                           border-color: rgba(255, 146, 112, 0.38); }
+    .card-food .dot      { color: #FF9270; }
+    .card-food:focus-visible { outline-color: #FF9270; }
+
+    /* ── fitnesshub — sky blue ── */
+
+    .card-fitness {
+      background-color: rgba(124, 201, 255, 0.05);
+      border: 1px solid rgba(124, 201, 255, 0.2);
+    }
+    .card-fitness::before  { background: #7CC9FF; }
+    .card-fitness:hover    { background-color: rgba(124, 201, 255, 0.09);
+                             border-color: rgba(124, 201, 255, 0.38); }
+    .card-fitness .dot     { color: #7CC9FF; }
+    .card-fitness:focus-visible { outline-color: #7CC9FF; }
+
+    /* ── financehub — mint ── */
+
+    .card-finance {
+      background-color: rgba(114, 237, 170, 0.05);
+      border: 1px solid rgba(114, 237, 170, 0.2);
+    }
+    .card-finance::before  { background: #72EDAA; }
+    .card-finance:hover    { background-color: rgba(114, 237, 170, 0.09);
+                             border-color: rgba(114, 237, 170, 0.38); }
+    .card-finance .dot     { color: #72EDAA; }
+    .card-finance:focus-visible { outline-color: #72EDAA; }
+
+    /* ── Responsive ── */
+
+    @media (max-width: 580px) {
+      body { gap: 3rem; }
+      .grid { grid-template-columns: 1fr; max-width: 380px; }
+      .card { min-height: 120px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card, .card::before { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="title">myhub<span class="title-dot">.</span></h1>
+
+  <nav class="grid" aria-label="Your apps">
+
+    <!-- Replace href="#" with your actual deployed app URLs -->
+
+    <a href="https://food-hub-weld-five.vercel.app/" class="card card-food"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="Open foodhub">
+      <span class="card-name">foodhub<span class="dot">.</span></span>
+    </a>
+
+    <a href="https://dannywebb014.github.io/" class="card card-fitness"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="Open fitnesshub">
+      <span class="card-name">fitnesshub<span class="dot">.</span></span>
+    </a>
+
+    <a href="#" class="card card-finance"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="Open financehub">
+      <span class="card-name">financehub<span class="dot">.</span></span>
+    </a>
+
+  </nav>
+
+</body>
+</html>
