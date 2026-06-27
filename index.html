@@ -49,7 +49,7 @@
       text-align: center;
     }
 
-    .title-dot { color: #B4A9FF; }
+    .title-dot { color: var(--accent, #B4A9FF); }
 
     /* ── Grid ── */
 
@@ -185,6 +185,14 @@
     </a>
 
   </nav>
+
+  <script>
+    // Random subtle accent hue per visit (title dot only — app cards keep their brand colors).
+    document.documentElement.style.setProperty(
+      '--accent',
+      `hsl(${Math.floor(Math.random() * 360)} 90% 75%)`
+    );
+  </script>
 
 </body>
 </html>
