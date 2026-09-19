@@ -1,64 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="myhub. — your personal app suite" />
-  <title>myhub.</title>
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/myhub-homepage/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="myhub.">
-<meta name="theme-color" content="#102521">
-<link rel="manifest" href="/myhub-homepage/manifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="lifeOS. — your personal app suite" />
+  <title>lifeOS.</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/myhub-homepage/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="lifeOS.">
+  <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1a1e1a" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="/myhub-homepage/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,500;1,600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet" />
 
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    /* My Hub theme — same neutrals and type as food., train. and breathe. */
     :root {
-      --bg:   #102521;
-      --text: #A3BBAD;
+      --bg: #f4f1ea; --surface: #fffdf8; --hover: #f9f6ef;
+      --line: #e5dfd0;
+      --text: #2c2218; --muted: #6b6055;
+      --shadow: 0 1px 3px rgba(44,34,24,.06);
+      --shadow-lg: 0 12px 28px rgba(44,34,24,.08);
+      --noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.035 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+
+      /* each app's logo colour (word) and accent (dot, hover bar) */
+      --life-logo: #5a4fa0;  --life-accent: #7d6fd6;
+      --food-logo: #3d6b3d;  --food-accent: #4a7c4a;
+      --train-logo: #8a3e25; --train-accent: #c45a3a;
+      --breathe-logo: #8a5a14; --breathe-accent: #c08020;
+
+      --disp: 'Lora', Georgia, serif;
+      --body: 'Source Sans 3', system-ui, -apple-system, Helvetica, Arial, sans-serif;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1e1a; --surface: #232823; --hover: #2a302a;
+        --line: #3a423a;
+        --text: #ebe8de; --muted: #a8a89c;
+        --shadow: 0 1px 4px rgba(0,0,0,.35);
+        --shadow-lg: 0 12px 28px rgba(0,0,0,.3);
+        --noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+        --life-logo: #c9c1ff;  --life-accent: #b4a9ff;
+        --food-logo: #9fc89f;  --food-accent: #5a8a5a;
+        --train-logo: #e8a085; --train-accent: #d97a52;
+        --breathe-logo: #e0b870; --breathe-accent: #e09d3a;
+        color-scheme: dark;
+      }
     }
 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
 
     body {
       min-height: 100vh;
       background: var(--bg);
+      background-image: var(--noise);
       color: var(--text);
-      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-family: var(--body);
       -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 3rem 1.5rem;
-      gap: 4.5rem;
+      padding: calc(3rem + env(safe-area-inset-top)) 1.5rem calc(3rem + env(safe-area-inset-bottom));
+      gap: 3.5rem;
     }
 
     /* ── Title ── */
-
     .title {
-      font-size: clamp(4rem, 11vw, 7rem);
-      font-weight: 700;
-      letter-spacing: -0.055em;
-      line-height: 1;
+      font-family: var(--disp);
+      font-size: clamp(3.5rem, 11vw, 6rem);
+      font-weight: 600;
+      font-style: italic;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
       text-align: center;
+      color: var(--life-logo);
     }
-
-    .title-dot { color: var(--accent, #B4A9FF); }
+    .title .dot { font-style: normal; color: var(--life-accent); }
 
     /* ── Grid ── */
-
     .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -67,8 +95,7 @@
       max-width: 840px;
     }
 
-    /* ── Card base ── */
-
+    /* ── Cards ── */
     .card {
       position: relative;
       display: flex;
@@ -76,89 +103,54 @@
       justify-content: center;
       text-align: center;
       padding: 2.5rem 1.5rem;
-      min-height: 190px;
+      min-height: 180px;
       border-radius: 12px;
       text-decoration: none;
-      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
       overflow: hidden;
-      transition: transform 230ms ease,
-                  box-shadow 230ms ease,
-                  background-color 230ms ease,
-                  border-color 230ms ease;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .15s;
     }
-
-    /* Accent top bar — reveals on hover */
+    /* accent bar along the top, revealed on hover */
     .card::before {
       content: '';
       position: absolute;
       inset: 0 0 auto 0;
-      height: 2px;
+      height: 3px;
+      background: var(--accent);
       opacity: 0;
-      transition: opacity 230ms ease;
+      transition: opacity .25s ease;
     }
-
     .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+      border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
     }
-
     .card:hover::before { opacity: 1; }
-
-    .card:focus-visible {
-      outline: 2px solid currentColor;
-      outline-offset: 4px;
-    }
+    .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
     .card-name {
-      font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+      font-family: var(--disp);
+      font-size: 32px;
       font-weight: 600;
-      letter-spacing: -0.02em;
+      font-style: italic;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      color: var(--logo);
     }
+    .card-name .dot { font-style: normal; color: var(--accent); }
 
-    /* ── foodhub — coral ── */
-
-    .card-food {
-      background-color: rgba(255, 146, 112, 0.05);
-      border: 1px solid rgba(255, 146, 112, 0.2);
-    }
-    .card-food::before   { background: #FF9270; }
-    .card-food:hover     { background-color: rgba(255, 146, 112, 0.09);
-                           border-color: rgba(255, 146, 112, 0.38); }
-    .card-food .dot      { color: #FF9270; }
-    .card-food:focus-visible { outline-color: #FF9270; }
-
-    /* ── fitnesshub — sky blue ── */
-
-    .card-fitness {
-      background-color: rgba(124, 201, 255, 0.05);
-      border: 1px solid rgba(124, 201, 255, 0.2);
-    }
-    .card-fitness::before  { background: #7CC9FF; }
-    .card-fitness:hover    { background-color: rgba(124, 201, 255, 0.09);
-                             border-color: rgba(124, 201, 255, 0.38); }
-    .card-fitness .dot     { color: #7CC9FF; }
-    .card-fitness:focus-visible { outline-color: #7CC9FF; }
-
-    /* ── breathhub — amber ── */
-
-    .card-breath {
-      background-color: rgba(242, 193, 107, 0.05);
-      border: 1px solid rgba(242, 193, 107, 0.2);
-    }
-    .card-breath::before  { background: #F2C16B; }
-    .card-breath:hover    { background-color: rgba(242, 193, 107, 0.09);
-                            border-color: rgba(242, 193, 107, 0.38); }
-    .card-breath .dot     { color: #F2C16B; }
-    .card-breath:focus-visible { outline-color: #F2C16B; }
+    .card-food    { --logo: var(--food-logo);    --accent: var(--food-accent); }
+    .card-train   { --logo: var(--train-logo);   --accent: var(--train-accent); }
+    .card-breathe { --logo: var(--breathe-logo); --accent: var(--breathe-accent); }
 
     /* ── Responsive ── */
-
     @media (max-width: 580px) {
-      body { gap: 3rem; }
+      body { gap: 2.5rem; }
       .grid { grid-template-columns: 1fr; max-width: 380px; }
-      .card { min-height: 120px; }
+      .card { min-height: 110px; }
     }
-
     @media (prefers-reduced-motion: reduce) {
       .card, .card::before { transition: none; }
     }
@@ -166,37 +158,29 @@
 </head>
 <body>
 
-  <h1 class="title">myhub<span class="title-dot">.</span></h1>
+  <h1 class="title">lifeOS<span class="dot">.</span></h1>
 
   <nav class="grid" aria-label="Your apps">
 
     <a href="https://food-hub-weld-five.vercel.app/" class="card card-food"
        target="_blank" rel="noopener noreferrer"
-       aria-label="Open foodhub">
-      <span class="card-name">foodhub<span class="dot">.</span></span>
+       aria-label="Open food.">
+      <span class="card-name">food<span class="dot">.</span></span>
     </a>
 
-    <a href="https://fitnesshub-woad.vercel.app/" class="card card-fitness"
+    <a href="https://fitnesshub-woad.vercel.app/" class="card card-train"
        target="_blank" rel="noopener noreferrer"
-       aria-label="Open fitnesshub">
-      <span class="card-name">fitnesshub<span class="dot">.</span></span>
+       aria-label="Open train.">
+      <span class="card-name">train<span class="dot">.</span></span>
     </a>
 
-    <a href="https://dannywebb014.github.io/breathhub/" class="card card-breath"
+    <a href="https://dannywebb014.github.io/breathhub/" class="card card-breathe"
        target="_blank" rel="noopener noreferrer"
-       aria-label="Open breathhub">
-      <span class="card-name">breathhub<span class="dot">.</span></span>
+       aria-label="Open breathe.">
+      <span class="card-name">breathe<span class="dot">.</span></span>
     </a>
 
   </nav>
-
-  <script>
-    // Random subtle accent hue per visit (title dot only — app cards keep their brand colors).
-    document.documentElement.style.setProperty(
-      '--accent',
-      `hsl(${Math.floor(Math.random() * 360)} 90% 75%)`
-    );
-  </script>
 
 </body>
 </html>
