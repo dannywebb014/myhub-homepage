@@ -33,6 +33,7 @@
       --food-logo: #3d6b3d;  --food-accent: #4a7c4a;
       --train-logo: #8a3e25; --train-accent: #c45a3a;
       --breathe-logo: #8a5a14; --breathe-accent: #c08020;
+      --motivation-logo: #2d5a90; --motivation-accent: #3d6ba8;
 
       --disp: 'Lora', Georgia, serif;
       --body: 'Source Sans 3', system-ui, -apple-system, Helvetica, Arial, sans-serif;
@@ -50,6 +51,7 @@
         --food-logo: #9fc89f;  --food-accent: #5a8a5a;
         --train-logo: #e8a085; --train-accent: #d97a52;
         --breathe-logo: #e0b870; --breathe-accent: #e09d3a;
+        --motivation-logo: #9fc0e0; --motivation-accent: #5a8ac2;
         color-scheme: dark;
       }
     }
@@ -89,10 +91,10 @@
     /* ── Grid ── */
     .grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
       gap: 1rem;
       width: 100%;
-      max-width: 840px;
+      max-width: 880px;
     }
 
     /* ── Cards ── */
@@ -144,6 +146,7 @@
     .card-food    { --logo: var(--food-logo);    --accent: var(--food-accent); }
     .card-train   { --logo: var(--train-logo);   --accent: var(--train-accent); }
     .card-breathe { --logo: var(--breathe-logo); --accent: var(--breathe-accent); }
+    .card-motivation { --logo: var(--motivation-logo); --accent: var(--motivation-accent); }
 
     /* ── Responsive ── */
     @media (max-width: 580px) {
@@ -178,6 +181,12 @@
        target="_blank" rel="noopener noreferrer"
        aria-label="Open breathe.">
       <span class="card-name">breathe<span class="dot">.</span></span>
+    </a>
+
+    <a href="https://dannywebb014.github.io/motivation/" class="card card-motivation"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="Open motivation.">
+      <span class="card-name">motivation<span class="dot">.</span></span>
     </a>
 
   </nav>
