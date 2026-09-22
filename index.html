@@ -35,6 +35,7 @@
       --breathe-logo: #8a5a14; --breathe-accent: #c08020;
       --motivation-logo: #2d5a90; --motivation-accent: #3d6ba8;
       --money-logo: #5a2c40; --money-accent: #7a3e5a;
+      --tasks-logo: #1f5f5c; --tasks-accent: #2f8a84;
 
       --disp: 'Lora', Georgia, serif;
       --body: 'Source Sans 3', system-ui, -apple-system, Helvetica, Arial, sans-serif;
@@ -54,6 +55,7 @@
         --breathe-logo: #e0b870; --breathe-accent: #e09d3a;
         --motivation-logo: #9fc0e0; --motivation-accent: #5a8ac2;
         --money-logo: #c89dc0; --money-accent: #a06080;
+        --tasks-logo: #8fd0c9; --tasks-accent: #4fa8a0;
         color-scheme: dark;
       }
     }
@@ -96,7 +98,7 @@
       grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
       gap: 1rem;
       width: 100%;
-      max-width: 1040px;
+      max-width: 660px;
     }
 
     /* ── Cards ── */
@@ -150,6 +152,7 @@
     .card-breathe { --logo: var(--breathe-logo); --accent: var(--breathe-accent); }
     .card-motivation { --logo: var(--motivation-logo); --accent: var(--motivation-accent); }
     .card-money { --logo: var(--money-logo); --accent: var(--money-accent); }
+    .card-tasks { --logo: var(--tasks-logo); --accent: var(--tasks-accent); }
 
     /* ── Responsive ── */
     @media (max-width: 580px) {
@@ -196,6 +199,12 @@
        target="_blank" rel="noopener noreferrer"
        aria-label="Open money.">
       <span class="card-name">money<span class="dot">.</span></span>
+    </a>
+
+    <a href="https://dannywebb014.github.io/taskhub/" class="card card-tasks"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="Open tasks.">
+      <span class="card-name">tasks<span class="dot">.</span></span>
     </a>
 
   </nav>
