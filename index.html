@@ -77,8 +77,11 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: calc(3rem + env(safe-area-inset-top)) 1.5rem calc(3rem + env(safe-area-inset-bottom));
-      gap: 3.5rem;
+      /* "safe" keeps the top reachable once today. makes the page taller than
+         the screen; centring alone pushes the overflow out of scroll range. */
+      justify-content: safe center;
+      padding: calc(2.5rem + env(safe-area-inset-top)) 1.5rem calc(3rem + env(safe-area-inset-bottom));
+      gap: 2.5rem;
     }
 
     /* ── Title ── */
@@ -157,6 +160,55 @@
     .card-tasks { --logo: var(--tasks-logo); --accent: var(--tasks-accent); }
     .card-places { --logo: var(--places-logo); --accent: var(--places-accent); }
 
+
+    /* ── today. ── */
+    .today { width:100%; max-width:860px; margin:0 0 1.75rem; }
+    .today-head { display:flex; align-items:baseline; gap:.6rem; margin:0 .25rem .5rem; }
+    .today-head h2 { font-family:var(--disp); font-style:italic; font-size:1.5rem; font-weight:600; margin:0; letter-spacing:-.5px; }
+    .today-head h2 .dot { font-style:normal; color:var(--life-accent); }
+    .today-head .n { font-size:.8rem; color:var(--muted); font-weight:600; }
+    .today-head .acts { margin-left:auto; display:flex; gap:.75rem; }
+    .today-head button { border:none; background:none; color:var(--muted); font-size:.85rem; font-family:var(--body); padding:2px; cursor:pointer; }
+    .today-head button:hover { color:var(--text); }
+    .today-card { background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:.35rem 1rem; }
+    .t-note { margin:.5rem .25rem 0; font-size:.85rem; color:#b54e4e; }
+    .t-empty { color:var(--muted); font-size:.9rem; padding:.85rem .1rem; margin:0; }
+    .t-link { border:none; background:none; color:var(--life-accent); font-family:var(--body); font-size:.95rem; font-weight:600; padding:.85rem .1rem; cursor:pointer; }
+    .t-dinner { display:flex; align-items:center; gap:.65rem; padding:.8rem .1rem; text-decoration:none; color:inherit; border-bottom:1px solid var(--line); }
+    .t-dinner:last-child { border-bottom:none; }
+    .t-kind { font-family:var(--disp); font-style:italic; font-size:.95rem; color:var(--food-logo); }
+    .t-meal { font-weight:600; }
+    .t-mins { margin-left:auto; font-size:.8rem; color:var(--muted); }
+    .t-row { display:flex; align-items:flex-start; gap:.7rem; padding:.7rem .1rem; border-bottom:1px solid var(--line); }
+    .t-row:last-child { border-bottom:none; }
+    .t-row .tick {
+      width:22px; height:22px; flex-shrink:0; margin-top:1px; border-radius:50%; border:2px solid var(--line);
+      background:none; color:transparent; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s;
+    }
+    .t-row.done .tick { background:var(--life-accent); border-color:var(--life-accent); color:#fff; }
+    .t-row.done .t-text { text-decoration:line-through; color:var(--muted); }
+    .t-row .t-body { min-width:0; }
+    .t-text { font-size:.98rem; overflow-wrap:anywhere; }
+    .t-meta { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.1rem; font-size:.78rem; color:var(--muted); }
+    .t-space { font-weight:700; }
+    .t-space.my { color:var(--tasks-accent); }
+    .t-space.work { color:var(--breathe-accent); }
+    .t-late { color:#b54e4e; font-weight:700; }
+    .t-doc::before { content:"· "; }
+
+    dialog { border:1px solid var(--line); border-radius:14px; background:var(--surface); color:var(--text); padding:0; width:min(400px, calc(100% - 2rem)); box-shadow:0 18px 50px rgba(0,0,0,.25); }
+    dialog::backdrop { background:rgba(0,0,0,.45); }
+    dialog form { padding:1.25rem; }
+    dialog h3 { font-family:var(--disp); font-style:italic; font-size:1.35rem; margin:0 0 .3rem; font-weight:600; }
+    dialog p.sub { color:var(--muted); font-size:.85rem; margin:0 0 1rem; }
+    label.f { display:block; font-size:.72rem; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--muted); margin:.7rem 0 .3rem; }
+    .field { width:100%; padding:.6rem .75rem; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-family:var(--body); font-size:1rem; }
+    .field:focus { outline:none; border-color:var(--life-accent); }
+    .err { color:#b54e4e; font-size:.85rem; min-height:1.1rem; margin:.4rem 0 0; }
+    .dlg-foot { display:flex; justify-content:flex-end; gap:.5rem; margin-top:1rem; }
+    .btn { padding:.55rem 1rem; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-family:var(--body); font-size:.9rem; font-weight:600; cursor:pointer; }
+    .btn.primary { background:var(--life-accent); border-color:var(--life-accent); color:#fff; }
+
     /* ── Responsive ── */
     @media (max-width: 580px) {
       body { gap: 2.5rem; }
@@ -171,6 +223,21 @@
 <body>
 
   <h1 class="title">lifeOS<span class="dot">.</span></h1>
+
+  <section class="today" id="today" hidden>
+    <div class="today-head">
+      <h2>today<span class="dot">.</span></h2>
+      <span class="n" id="today-count"></span>
+      <div class="acts">
+        <button id="sign-in">Sign in</button>
+        <button id="refresh">Refresh</button>
+        <button id="craft-setup">Craft</button>
+        <button id="sign-out" hidden>Sign out</button>
+      </div>
+    </div>
+    <div class="today-card" id="today-body"></div>
+    <p class="t-note" id="today-note" hidden></p>
+  </section>
 
   <nav class="grid" aria-label="Your apps">
 
@@ -218,5 +285,27 @@
 
   </nav>
 
+  <dialog id="login-dialog">
+    <form id="login-form">
+      <h3>Sign in</h3>
+      <p class="sub">The same account as food. and places.</p>
+      <input class="field" type="email" name="email" placeholder="Email" autocomplete="username" required>
+      <label class="f" for="pw">Password</label>
+      <input class="field" id="pw" type="password" name="password" autocomplete="current-password" required>
+      <p class="err" id="login-error"></p>
+      <div class="dlg-foot"><button class="btn" type="button" onclick="this.closest('dialog').close()">Cancel</button><button class="btn primary">Sign in</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="craft-dialog">
+    <form id="craft-form">
+      <h3>Craft connections</h3>
+      <p class="sub">Paste each space's API URL from Craft's Imagine tab. Saved to your account, so tasks. and lifeOS share them.</p>
+      <div id="craft-fields"></div>
+      <div class="dlg-foot"><button class="btn" type="button" onclick="this.closest('dialog').close()">Cancel</button><button class="btn primary">Save</button></div>
+    </form>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>
