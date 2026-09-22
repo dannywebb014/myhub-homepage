@@ -1,9 +1,9 @@
 // ─── today. ──────────────────────────────────────────────────────────
 //
-// The panel above the app cards: tonight's dinner from food. and today's
-// tasks from Craft, tickable here. Signed in with the same account as the
-// other hub apps; the Craft connection URLs are kept in the database so
-// every device and every app can use them after one setup.
+// The panel above the app cards: today's meals from food. and today's tasks
+// from Craft, tickable here. Signed in with the same account as the other
+// hub apps; the Craft connection URLs are kept in the database so every
+// device and every app can use them after one setup.
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/+esm";
 
@@ -18,6 +18,7 @@ const SPACES = [
   { id: "work", label: "work." },
 ];
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MEALS = ["Breakfast", "Snack 1", "Lunch", "Snack 2", "Dinner", "Snack 3"];
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -25,7 +26,7 @@ const check = ({ data, error }) => { if (error) throw new Error(error.message); 
 
 let links = {};      // space id -> { url, api_key }
 let tasks = [];
-let dinner = null;
+let meals = [];
 
 // ── Craft ──
 // Only the link ID matters, so a URL pasted with or without /api/v1 works.
@@ -33,6 +34,7 @@ function apiBase(url) {
   const m = String(url || "").trim().match(/^(?:https?:\/\/)?(connect\.craft\.do\/links\/[^/?#\s]+)/i);
   return m ? `https://${m[1]}/api/v1` : String(url || "").replace(/\/+$/, "");
 }
+
 async function craft(spaceId, path, options = {}) {
   const link = links[spaceId];
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
@@ -104,24 +106,28 @@ async function tickOff(task, row) {
 }
 
 // ── food. ──
-async function loadDinner() {
+// Every meal planned for today, in the order food. lists them.
+async function loadMeals() {
   const { data: { user } } = await supabase.auth.getUser();
   const profile = check(await supabase.from("profiles").select("household_id").eq("id", user.id).maybeSingle());
   if (!profile?.household_id) return;
   const rows = check(await supabase.from("meal_plan")
-    .select("recipe_id, note, servings")
+    .select("meal, recipe_id, note")
     .eq("household_id", profile.household_id)
-    .eq("day", DAYS[new Date().getDay()])
-    .eq("meal", "Dinner"));
-  if (!rows.length) return;
-  const ids = rows.map(r => r.recipe_id).filter(Boolean);
+    .eq("day", DAYS[new Date().getDay()]));
+  const ids = [...new Set(rows.map(r => r.recipe_id).filter(Boolean))];
   const recipes = ids.length
     ? check(await supabase.from("recipes").select("id, name, prep_time, cook_time").in("id", ids))
     : [];
-  dinner = {
-    names: rows.map(r => recipes.find(x => x.id === r.recipe_id)?.name || r.note).filter(Boolean),
-    minutes: recipes.reduce((total, r) => total + (r.prep_time || 0) + (r.cook_time || 0), 0),
-  };
+  meals = MEALS.map(meal => {
+    const named = rows.filter(r => r.meal === meal)
+      .map(r => recipes.find(x => x.id === r.recipe_id) || { name: r.note });
+    return {
+      meal,
+      names: named.map(r => r.name).filter(Boolean),
+      minutes: named.reduce((total, r) => total + (r.prep_time || 0) + (r.cook_time || 0), 0),
+    };
+  }).filter(m => m.names.length);
 }
 
 // ── Painting ──
@@ -138,14 +144,15 @@ function paint() {
   const body = $("today-body");
   body.replaceChildren();
 
-  if (dinner?.names.length) {
+  for (const meal of meals) {
     const line = document.createElement("a");
-    line.className = "t-dinner";
+    line.className = "t-meal-row";
     line.href = "https://food-hub-weld-five.vercel.app/";
     line.target = "_blank";
     line.rel = "noopener noreferrer";
-    line.innerHTML = `<span class="t-kind">dinner</span><span class="t-meal"></span>${dinner.minutes ? `<span class="t-mins">${dinner.minutes} min</span>` : ""}`;
-    line.querySelector(".t-meal").textContent = dinner.names.join(" · ");
+    line.innerHTML = `<span class="t-kind"></span><span class="t-meal"></span>${meal.minutes ? `<span class="t-mins">${meal.minutes} min</span>` : ""}`;
+    line.querySelector(".t-kind").textContent = meal.meal.toLowerCase();
+    line.querySelector(".t-meal").textContent = meal.names.join(" · ");
     body.append(line);
   }
 
@@ -153,12 +160,12 @@ function paint() {
     const connect = document.createElement("button");
     connect.className = "t-link";
     connect.textContent = "Connect Craft to see today’s tasks";
-    connect.onclick = openCraftSetup;
+    connect.onclick = openSettings;
     body.append(connect);
   } else if (!tasks.length) {
     const p = document.createElement("p");
     p.className = "t-empty";
-    p.textContent = dinner?.names.length ? "No tasks due today." : "Nothing due today.";
+    p.textContent = meals.length ? "No tasks due today." : "Nothing due today.";
     body.append(p);
   }
 
@@ -178,32 +185,39 @@ function paint() {
   $("today-count").textContent = tasks.length ? `${tasks.length} task${tasks.length === 1 ? "" : "s"}` : "";
 }
 
-// ── Craft setup ──
-function openCraftSetup() {
-  const dialog = $("craft-dialog");
-  const fields = $("craft-fields");
-  // tasks. stores its connections in this browser under the same site, so
-  // offer them rather than making the URLs be pasted twice.
-  let saved = {};
-  try { saved = JSON.parse(localStorage.getItem("tasks.settings") || "{}").spaces || {}; } catch { /* none */ }
-  fields.replaceChildren(...SPACES.map(space => {
-    const box = document.createElement("div");
-    box.innerHTML = `<label class="f">${esc(space.label)} API URL</label>
-      <input class="field" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://connect.craft.do/links/…">`;
-    const input = box.querySelector("input");
-    input.value = links[space.id]?.url || saved[space.id]?.url || "";
-    input.dataset.space = space.id;
-    return box;
-  }));
-  dialog.showModal();
+// ── Settings ──
+async function openSettings() {
+  const { data: { session } } = await supabase.auth.getSession();
+  $("who").textContent = session ? `Signed in as ${session.user.email}` : "Not signed in.";
+  $("account-btn").textContent = session ? "Sign out" : "Sign in";
+  $("craft-section").hidden = !session;
+  $("save-btn").hidden = !session;
+  if (session) {
+    // tasks. stores its connections in this browser under the same site, so
+    // offer them rather than making the URLs be pasted twice.
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem("tasks.settings") || "{}").spaces || {}; } catch { /* none */ }
+    $("craft-fields").replaceChildren(...SPACES.map(space => {
+      const box = document.createElement("div");
+      box.innerHTML = `<label class="f">${esc(space.label)} Craft API URL</label>
+        <input class="field" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://connect.craft.do/links/…">`;
+      const input = box.querySelector("input");
+      input.value = links[space.id]?.url || saved[space.id]?.url || "";
+      input.dataset.space = space.id;
+      return box;
+    }));
+  }
+  $("settings-dialog").showModal();
 }
 
 async function saveCraftLinks() {
   const rows = [...$("craft-fields").querySelectorAll("input")]
     .map(input => ({ space: input.dataset.space, url: input.value.trim() }))
     .filter(row => row.url);
+  if (!rows.length) return;
   try {
-    if (rows.length) check(await supabase.from("craft_links").upsert(rows.map(r => ({ ...r, updated_at: new Date().toISOString() })), { onConflict: "user_id,space" }));
+    check(await supabase.from("craft_links")
+      .upsert(rows.map(r => ({ ...r, updated_at: new Date().toISOString() })), { onConflict: "user_id,space" }));
     await loadLinks();
     await loadTasks();
     paint();
@@ -222,26 +236,34 @@ async function loadLinks() {
 function showSignedOut() {
   $("today").hidden = false;
   $("today-count").textContent = "";
-  $("sign-in").hidden = false;
-  ["refresh", "craft-setup", "sign-out"].forEach(id => { $(id).hidden = true; });
-  $("today-body").innerHTML = `<p class="t-empty">Sign in to see tonight’s dinner and today’s tasks.</p>`;
+  $("refresh").hidden = true;
+  $("today-body").innerHTML = `<p class="t-empty">Sign in from <b>settings</b>, at the bottom of the page, to see today’s meals and tasks.</p>`;
 }
 
 async function start() {
-  $("sign-in").hidden = true;
-  ["refresh", "craft-setup", "sign-out"].forEach(id => { $(id).hidden = false; });
   $("today").hidden = false;
+  $("refresh").hidden = false;
   $("today-body").innerHTML = `<p class="t-empty">Loading…</p>`;
   try { await loadLinks(); } catch (err) { console.error(err); note("Couldn’t load your Craft connections."); }
   await Promise.all([
     loadTasks(),
-    loadDinner().catch(err => { console.error("Loading dinner failed:", err); note("Couldn’t load tonight’s dinner."); }),
+    loadMeals().catch(err => { console.error("Loading meals failed:", err); note("Couldn’t load today’s meals."); }),
   ]);
   paint();
 }
 
-$("sign-in").addEventListener("click", () => $("login-dialog").showModal());
-$("sign-out").addEventListener("click", async () => { await supabase.auth.signOut(); location.reload(); });
+$("settings-open").addEventListener("click", openSettings);
+$("account-btn").addEventListener("click", async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) { await supabase.auth.signOut(); location.reload(); return; }
+  $("settings-dialog").close();
+  $("login-dialog").showModal();
+});
+$("settings-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  $("settings-dialog").close();
+  saveCraftLinks();
+});
 $("login-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = event.target;
@@ -255,8 +277,6 @@ $("login-form").addEventListener("submit", async (event) => {
     $("login-error").textContent = err.message === "Invalid login credentials" ? "That email and password don’t match." : err.message;
   }
 });
-$("craft-form").addEventListener("submit", (event) => { event.preventDefault(); $("craft-dialog").close(); saveCraftLinks(); });
-$("craft-setup").addEventListener("click", openCraftSetup);
 $("refresh").addEventListener("click", async () => { await loadTasks(); paint(); });
 
 const { data: { session } } = await supabase.auth.getSession();

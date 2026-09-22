@@ -174,6 +174,14 @@
     .t-note { margin:.5rem .25rem 0; font-size:.85rem; color:#b54e4e; }
     .t-empty { color:var(--muted); font-size:.9rem; padding:.85rem .1rem; margin:0; }
     .t-link { border:none; background:none; color:var(--life-accent); font-family:var(--body); font-size:.95rem; font-weight:600; padding:.85rem .1rem; cursor:pointer; }
+    .today-head .acts button { display:flex; align-items:center; }
+    .t-meal-row { display:flex; align-items:center; gap:.65rem; padding:.6rem .1rem; text-decoration:none; color:inherit; border-bottom:1px solid var(--line); }
+    .t-meal-row:last-child { border-bottom:none; }
+    .settings-btn {
+      border:none; background:none; color:var(--muted); font-family:var(--disp); font-style:italic; font-size:1rem;
+      cursor:pointer; padding:.4rem .8rem; margin-top:-1rem;
+    }
+    .settings-btn:hover { color:var(--text); }
     .t-dinner { display:flex; align-items:center; gap:.65rem; padding:.8rem .1rem; text-decoration:none; color:inherit; border-bottom:1px solid var(--line); }
     .t-dinner:last-child { border-bottom:none; }
     .t-kind { font-family:var(--disp); font-style:italic; font-size:.95rem; color:var(--food-logo); }
@@ -229,10 +237,9 @@
       <h2>today<span class="dot">.</span></h2>
       <span class="n" id="today-count"></span>
       <div class="acts">
-        <button id="sign-in">Sign in</button>
-        <button id="refresh">Refresh</button>
-        <button id="craft-setup">Craft</button>
-        <button id="sign-out" hidden>Sign out</button>
+        <button id="refresh" aria-label="Refresh" title="Refresh">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+        </button>
       </div>
     </div>
     <div class="today-card" id="today-body"></div>
@@ -285,6 +292,8 @@
 
   </nav>
 
+  <button class="settings-btn" id="settings-open">settings</button>
+
   <dialog id="login-dialog">
     <form id="login-form">
       <h3>Sign in</h3>
@@ -297,12 +306,18 @@
     </form>
   </dialog>
 
-  <dialog id="craft-dialog">
-    <form id="craft-form">
-      <h3>Craft connections</h3>
-      <p class="sub">Paste each space's API URL from Craft's Imagine tab. Saved to your account, so tasks. and lifeOS share them.</p>
-      <div id="craft-fields"></div>
-      <div class="dlg-foot"><button class="btn" type="button" onclick="this.closest('dialog').close()">Cancel</button><button class="btn primary">Save</button></div>
+  <dialog id="settings-dialog">
+    <form id="settings-form">
+      <h3>settings</h3>
+      <p class="sub" id="who">Not signed in.</p>
+      <div id="craft-section" hidden>
+        <div id="craft-fields"></div>
+      </div>
+      <div class="dlg-foot">
+        <button class="btn" type="button" id="account-btn">Sign in</button>
+        <button class="btn" type="button" onclick="this.closest('dialog').close()">Close</button>
+        <button class="btn primary" id="save-btn">Save</button>
+      </div>
     </form>
   </dialog>
 
