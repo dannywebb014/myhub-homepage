@@ -27,6 +27,7 @@ const check = ({ data, error }) => { if (error) throw new Error(error.message); 
 let links = {};      // space id -> { url, api_key }
 let tasks = [];
 let meals = [];
+let quote = null;
 
 // ── Craft ──
 // Only the link ID matters, so a URL pasted with or without /api/v1 works.
@@ -64,9 +65,12 @@ const placeLabel = (loc) =>
 async function loadTasks() {
   const spaces = SPACES.filter(s => links[s.id]?.url);
   const found = new Map();
+  const failed = [];
   await Promise.all(spaces.map(async (space) => {
     try {
-      const lists = await Promise.all(["active", "inbox"].map(scope => craft(space.id, `/tasks?scope=${scope}`)));
+      // The same three scopes tasks. uses: Craft counts a task scheduled for
+      // later today as upcoming, so asking for active alone misses it.
+      const lists = await Promise.all(["active", "upcoming", "inbox"].map(scope => craft(space.id, `/tasks?scope=${scope}`)));
       for (const list of lists) {
         for (const item of list.items || []) {
           if (item.taskInfo?.state !== "todo" || !isToday(item.taskInfo?.scheduleDate)) continue;
@@ -81,8 +85,10 @@ async function loadTasks() {
       }
     } catch (err) {
       console.error(`Loading ${space.label} tasks failed:`, err);
+      failed.push(space.label);
     }
   }));
+  if (failed.length) note(`Couldn’t load tasks from ${failed.join(" and ")}.`);
   tasks = [...found.values()].sort((a, b) =>
     SPACES.findIndex(s => s.id === a.spaceId) - SPACES.findIndex(s => s.id === b.spaceId) ||
     a.text.localeCompare(b.text));
@@ -130,6 +136,21 @@ async function loadMeals() {
   }).filter(m => m.names.length);
 }
 
+// ── motivation. ──
+// A different one each time the page is opened or refreshed.
+async function loadQuote() {
+  const rows = check(await supabase.from("motivation_quotes").select("text, author"));
+  quote = rows.length ? rows[Math.floor(Math.random() * rows.length)] : null;
+}
+
+function paintQuote() {
+  const box = $("quote");
+  box.hidden = !quote;
+  if (!quote) return;
+  box.querySelector(".q-text").textContent = quote.text;
+  box.querySelector(".q-author").textContent = quote.author ? `— ${quote.author}` : "";
+}
+
 // ── Painting ──
 let noteTimer;
 function note(message) {
@@ -150,7 +171,7 @@ function paint() {
     line.href = "https://food-hub-weld-five.vercel.app/";
     line.target = "_blank";
     line.rel = "noopener noreferrer";
-    line.innerHTML = `<span class="t-kind"></span><span class="t-meal"></span>${meal.minutes ? `<span class="t-mins">${meal.minutes} min</span>` : ""}`;
+    line.innerHTML = `<span class="t-kind"></span><span class="t-meal"></span><span class="t-mins">${meal.minutes ? `${meal.minutes} min` : ""}</span>`;
     line.querySelector(".t-kind").textContent = meal.meal.toLowerCase();
     line.querySelector(".t-meal").textContent = meal.names.join(" · ");
     body.append(line);
@@ -248,8 +269,10 @@ async function start() {
   await Promise.all([
     loadTasks(),
     loadMeals().catch(err => { console.error("Loading meals failed:", err); note("Couldn’t load today’s meals."); }),
+    loadQuote().catch(err => console.error("Loading a quote failed:", err)),
   ]);
   paint();
+  paintQuote();
 }
 
 $("settings-open").addEventListener("click", openSettings);
@@ -277,7 +300,11 @@ $("login-form").addEventListener("submit", async (event) => {
     $("login-error").textContent = err.message === "Invalid login credentials" ? "That email and password don’t match." : err.message;
   }
 });
-$("refresh").addEventListener("click", async () => { await loadTasks(); paint(); });
+$("refresh").addEventListener("click", async () => {
+  await Promise.all([loadTasks(), loadQuote().catch(() => { /* keep the old one */ })]);
+  paint();
+  paintQuote();
+});
 
 const { data: { session } } = await supabase.auth.getSession();
 session ? start() : showSignedOut();

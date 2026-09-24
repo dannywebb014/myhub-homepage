@@ -175,7 +175,10 @@
     .t-empty { color:var(--muted); font-size:.9rem; padding:.85rem .1rem; margin:0; }
     .t-link { border:none; background:none; color:var(--life-accent); font-family:var(--body); font-size:.95rem; font-weight:600; padding:.85rem .1rem; cursor:pointer; }
     .today-head .acts button { display:flex; align-items:center; }
-    .t-meal-row { display:flex; align-items:center; gap:.65rem; padding:.6rem .1rem; text-decoration:none; color:inherit; border-bottom:1px solid var(--line); }
+    /* A table, so the meal names line up under each other */
+    .t-meal-row { display:grid; grid-template-columns:5.5rem 1fr auto; align-items:baseline; gap:.75rem; padding:.6rem .1rem; text-decoration:none; color:inherit; border-bottom:1px solid var(--line); }
+    .t-meal-row .t-meal { overflow-wrap:anywhere; }
+    .t-meal-row .t-mins { white-space:nowrap; }
     .t-meal-row:last-child { border-bottom:none; }
     .settings-btn {
       border:none; background:none; color:var(--muted); font-family:var(--disp); font-style:italic; font-size:1rem;
@@ -203,6 +206,10 @@
     .t-space.work { color:var(--breathe-accent); }
     .t-late { color:#b54e4e; font-weight:700; }
     .t-doc::before { content:"· "; }
+
+    .quote { margin:1rem .25rem 0; padding-left:.9rem; border-left:2px solid var(--motivation-accent); }
+    .quote blockquote { font-family:var(--disp); font-style:italic; font-size:1.05rem; line-height:1.45; margin:0; color:var(--text); }
+    .quote figcaption { font-size:.8rem; color:var(--muted); margin-top:.3rem; }
 
     dialog { border:1px solid var(--line); border-radius:14px; background:var(--surface); color:var(--text); padding:0; width:min(400px, calc(100% - 2rem)); box-shadow:0 18px 50px rgba(0,0,0,.25); }
     dialog::backdrop { background:rgba(0,0,0,.45); }
@@ -244,6 +251,10 @@
     </div>
     <div class="today-card" id="today-body"></div>
     <p class="t-note" id="today-note" hidden></p>
+    <figure class="quote" id="quote" hidden>
+      <blockquote class="q-text"></blockquote>
+      <figcaption class="q-author"></figcaption>
+    </figure>
   </section>
 
   <nav class="grid" aria-label="Your apps">
