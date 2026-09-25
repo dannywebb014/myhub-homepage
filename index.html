@@ -37,6 +37,7 @@
       --money-logo: #5a2c40; --money-accent: #7a3e5a;
       --tasks-logo: #1f5f5c; --tasks-accent: #2f8a84;
       --places-logo: #8f2f52; --places-accent: #b8436d;
+      --cal-logo: #2f6aa3; --cal-accent: #3b7bbf;
 
       --disp: 'Lora', Georgia, serif;
       --body: 'Source Sans 3', system-ui, -apple-system, Helvetica, Arial, sans-serif;
@@ -58,6 +59,7 @@
         --money-logo: #c89dc0; --money-accent: #a06080;
         --tasks-logo: #8fd0c9; --tasks-accent: #4fa8a0;
         --places-logo: #f0a8c4; --places-accent: #e0789f;
+        --cal-logo: #a9cdf2; --cal-accent: #6fa8e0;
         color-scheme: dark;
       }
     }
@@ -159,6 +161,10 @@
     .card-money { --logo: var(--money-logo); --accent: var(--money-accent); }
     .card-tasks { --logo: var(--tasks-logo); --accent: var(--tasks-accent); }
     .card-places { --logo: var(--places-logo); --accent: var(--places-accent); }
+    .card-calendar { --logo: var(--cal-logo); --accent: var(--cal-accent); flex-direction: column; gap: .45rem; }
+    .card-sub { font-size: .85rem; color: var(--muted); line-height: 1.35; max-width: 100%; }
+    .card-sub b { color: var(--text); font-weight: 600; }
+    .card-sub span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 
     /* ── today. ── */
@@ -293,6 +299,13 @@
        target="_blank" rel="noopener noreferrer"
        aria-label="Open tasks.">
       <span class="card-name">tasks<span class="dot">.</span></span>
+    </a>
+
+    <a href="https://dannywebb014.github.io/calhub/" class="card card-calendar"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="Open calendar.">
+      <span class="card-name">calendar<span class="dot">.</span></span>
+      <span class="card-sub" id="cal-sub" hidden></span>
     </a>
 
     <a href="https://dannywebb014.github.io/places/" class="card card-places"

@@ -151,6 +151,65 @@ function paintQuote() {
   box.querySelector(".q-author").textContent = quote.author ? `— ${quote.author}` : "";
 }
 
+// ── calendar. ──
+// calendar. (same site) leaves its next events and today's task count in
+// this browser. While its Google sign-in is still good, the next event is
+// fetched fresh; otherwise what it last saw is used.
+const readJSON = (key) => { try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch { return {}; } };
+const localDay = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const clock = (d) => d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+
+async function upcomingEvents() {
+  const snap = readJSON("calendar.snapshot");
+  const saved = (snap.events || []).map(e => ({ ...e, start: new Date(e.start), end: new Date(e.end) }));
+  const auth = readJSON("calendar.google");
+  if (!auth.token || !(auth.expires > Date.now()) || !snap.calendars?.length) return saved;
+  const from = new Date();
+  const to = new Date(); to.setHours(0, 0, 0, 0); to.setDate(to.getDate() + 2);
+  try {
+    const lists = await Promise.all(snap.calendars.map(async (c) => {
+      const url = new URL(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(c.id)}/events`);
+      url.search = new URLSearchParams({ timeMin: from.toISOString(), timeMax: to.toISOString(), singleEvents: "true", orderBy: "startTime", maxResults: "10" });
+      const resp = await fetch(url, { headers: { Authorization: `Bearer ${auth.token}` } });
+      if (!resp.ok) throw new Error(String(resp.status));
+      const { items = [] } = await resp.json();
+      return items
+        .filter(e => e.status !== "cancelled" && !(e.attendees || []).some(a => a.self && a.responseStatus === "declined"))
+        .map(e => ({
+          title: e.summary || "(No title)",
+          allDay: Boolean(e.start?.date),
+          start: new Date(e.start.dateTime || `${e.start.date}T00:00`),
+          end: new Date(e.end.dateTime || `${e.end.date}T00:00`),
+        }));
+    }));
+    return lists.flat().sort((a, b) => a.start - b.start);
+  } catch (err) {
+    console.error("Loading the next event failed:", err);
+    return saved;
+  }
+}
+
+async function paintCalendar() {
+  const sub = $("cal-sub");
+  const snap = readJSON("calendar.snapshot");
+  if (!snap.saved) { sub.hidden = true; return; }
+  const now = new Date();
+  const today = localDay();
+  const next = (await upcomingEvents()).find(e => !e.allDay && e.end > now);
+  const lines = [];
+  if (next) {
+    const when = next.start <= now ? "Now" : localDay(next.start) === today ? clock(next.start) : `Tomorrow ${clock(next.start)}`;
+    lines.push(`<span><b>${esc(when)}</b> · ${esc(next.title)}</span>`);
+  } else if (snap.events) {
+    lines.push(`<span>Nothing else today</span>`);
+  }
+  // calendar.'s count covers Craft and Todoist; it's only used if it's from today.
+  const count = snap.day === today && snap.tasksToday != null ? snap.tasksToday : null;
+  if (count != null) lines.push(`<span>${count ? `${count} task${count === 1 ? "" : "s"} today` : "No tasks today"}</span>`);
+  sub.innerHTML = lines.join("");
+  sub.hidden = !lines.length;
+}
+
 // ── Painting ──
 let noteTimer;
 function note(message) {
@@ -301,10 +360,14 @@ $("login-form").addEventListener("submit", async (event) => {
   }
 });
 $("refresh").addEventListener("click", async () => {
-  await Promise.all([loadTasks(), loadQuote().catch(() => { /* keep the old one */ })]);
+  await Promise.all([loadTasks(), loadQuote().catch(() => { /* keep the old one */ }), paintCalendar()]);
   paint();
   paintQuote();
 });
+
+paintCalendar();
+setInterval(paintCalendar, 60 * 1000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") paintCalendar(); });
 
 const { data: { session } } = await supabase.auth.getSession();
 session ? start() : showSignedOut();
