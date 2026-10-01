@@ -108,13 +108,22 @@ async function tickOff(task, row) {
 
 // ── food. ──
 // Every meal planned for today, in the order food. lists them.
-async function loadMeals() {
-  const { data: { user } } = await supabase.auth.getUser();
-  const profile = check(await supabase.from("profiles").select("household_id").eq("id", user.id).maybeSingle());
-  if (!profile?.household_id) return;
+// The household is remembered on this device (food. keeps it under the same key,
+// and both apps share this site's storage), so the profile is only looked up once.
+async function householdFor(userId) {
+  const key = `food.household.${userId}`;
+  try { const cached = localStorage.getItem(key); if (cached) return cached; } catch { /* private mode */ }
+  const profile = check(await supabase.from("profiles").select("household_id").eq("id", userId).maybeSingle());
+  if (profile?.household_id) { try { localStorage.setItem(key, profile.household_id); } catch { /* private mode */ } }
+  return profile?.household_id;
+}
+
+async function loadMeals(session) {
+  const householdId = await householdFor(session.user.id);
+  if (!householdId) return;
   const rows = check(await supabase.from("meal_plan")
     .select("meal, recipe_id, note")
-    .eq("household_id", profile.household_id)
+    .eq("household_id", householdId)
     .eq("day", DAYS[new Date().getDay()]));
   const ids = [...new Set(rows.map(r => r.recipe_id).filter(Boolean))];
   const recipes = ids.length
@@ -305,14 +314,14 @@ async function loadLinks() {
 }
 
 // ── Start ──
-async function start() {
+async function start(session) {
   $("today").hidden = false;
   $("refresh").hidden = false;
   $("today-body").innerHTML = `<p class="t-empty">Loading…</p>`;
-  try { await loadLinks(); } catch (err) { console.error(err); note("Couldn’t load your Craft connections."); }
+  // Only the tasks need the Craft links; meals and the quote start at the same time.
   await Promise.all([
-    loadTasks(),
-    loadMeals().catch(err => { console.error("Loading meals failed:", err); note("Couldn’t load today’s meals."); }),
+    loadLinks().catch(err => { console.error(err); note("Couldn’t load your Craft connections."); }).then(loadTasks),
+    loadMeals(session).catch(err => { console.error("Loading meals failed:", err); note("Couldn’t load today’s meals."); }),
     loadQuote().catch(err => console.error("Loading a quote failed:", err)),
   ]);
   paint();
@@ -338,5 +347,4 @@ setInterval(paintCalendar, 60 * 1000);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") paintCalendar(); });
 
 // Signing in happens once, on the lifeOS. sign-in page.
-await requireAuth();
-start();
+start(await requireAuth());
