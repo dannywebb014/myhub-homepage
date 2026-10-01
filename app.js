@@ -5,13 +5,8 @@
 // hub apps; the Craft connection URLs are kept in the database so every
 // device and every app can use them after one setup.
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/+esm";
-
-const SUPABASE_URL = "https://tvpmeysctvlhjyhotfyk.supabase.co";
-// The anon key is meant to be public: every table it can reach is guarded by
-// row-level security, so it only ever returns the signed-in user's own rows.
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2cG1leXNjdHZsaGp5aG90ZnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3MjkxMjcsImV4cCI6MjA5MDMwNTEyN30.FyerEiT3XA6uAXH_JlFhi_v2Job4GKLWuTFmbGVIjMg";
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// The client and the sign-in are shared by every hub app (lifeos/auth.js).
+import { supabase, requireAuth, signOut } from "/lifeos/auth.js";
 
 const SPACES = [
   { id: "my", label: "my space." },
@@ -268,10 +263,7 @@ function paint() {
 // ── Settings ──
 async function openSettings() {
   const { data: { session } } = await supabase.auth.getSession();
-  $("who").textContent = session ? `Signed in as ${session.user.email}` : "Not signed in.";
-  $("account-btn").textContent = session ? "Sign out" : "Sign in";
-  $("craft-section").hidden = !session;
-  $("save-btn").hidden = !session;
+  $("who").textContent = session ? `Signed in as ${session.user.email}` : "";
   if (session) {
     // tasks. stores its connections in this browser under the same site, so
     // offer them rather than making the URLs be pasted twice.
@@ -313,13 +305,6 @@ async function loadLinks() {
 }
 
 // ── Start ──
-function showSignedOut() {
-  $("today").hidden = false;
-  $("today-count").textContent = "";
-  $("refresh").hidden = true;
-  $("today-body").innerHTML = `<p class="t-empty">Sign in from <b>settings</b>, at the bottom of the page, to see today’s meals and tasks.</p>`;
-}
-
 async function start() {
   $("today").hidden = false;
   $("refresh").hidden = false;
@@ -335,29 +320,12 @@ async function start() {
 }
 
 $("settings-open").addEventListener("click", openSettings);
-$("account-btn").addEventListener("click", async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) { await supabase.auth.signOut(); location.reload(); return; }
-  $("settings-dialog").close();
-  $("login-dialog").showModal();
-});
+// Signs out of every hub app on this device.
+$("account-btn").addEventListener("click", () => signOut());
 $("settings-form").addEventListener("submit", (event) => {
   event.preventDefault();
   $("settings-dialog").close();
   saveCraftLinks();
-});
-$("login-form").addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const form = event.target;
-  $("login-error").textContent = "";
-  try {
-    const { error } = await supabase.auth.signInWithPassword({ email: form.email.value.trim(), password: form.password.value });
-    if (error) throw error;
-    $("login-dialog").close();
-    start();
-  } catch (err) {
-    $("login-error").textContent = err.message === "Invalid login credentials" ? "That email and password don’t match." : err.message;
-  }
 });
 $("refresh").addEventListener("click", async () => {
   await Promise.all([loadTasks(), loadQuote().catch(() => { /* keep the old one */ }), paintCalendar()]);
@@ -369,5 +337,6 @@ paintCalendar();
 setInterval(paintCalendar, 60 * 1000);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") paintCalendar(); });
 
-const { data: { session } } = await supabase.auth.getSession();
-session ? start() : showSignedOut();
+// Signing in happens once, on the lifeOS. sign-in page.
+await requireAuth();
+start();

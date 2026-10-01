@@ -327,27 +327,15 @@
 
   <button class="settings-btn" id="settings-open">settings</button>
 
-  <dialog id="login-dialog">
-    <form id="login-form">
-      <h3>Sign in</h3>
-      <p class="sub">The same account as food. and places.</p>
-      <input class="field" type="email" name="email" placeholder="Email" autocomplete="username" required>
-      <label class="f" for="pw">Password</label>
-      <input class="field" id="pw" type="password" name="password" autocomplete="current-password" required>
-      <p class="err" id="login-error"></p>
-      <div class="dlg-foot"><button class="btn" type="button" onclick="this.closest('dialog').close()">Cancel</button><button class="btn primary">Sign in</button></div>
-    </form>
-  </dialog>
-
   <dialog id="settings-dialog">
     <form id="settings-form">
       <h3>settings</h3>
-      <p class="sub" id="who">Not signed in.</p>
-      <div id="craft-section" hidden>
+      <p class="sub" id="who"></p>
+      <div id="craft-section">
         <div id="craft-fields"></div>
       </div>
       <div class="dlg-foot">
-        <button class="btn" type="button" id="account-btn">Sign in</button>
+        <button class="btn" type="button" id="account-btn">Sign out</button>
         <button class="btn" type="button" onclick="this.closest('dialog').close()">Close</button>
         <button class="btn primary" id="save-btn">Save</button>
       </div>
