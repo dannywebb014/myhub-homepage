@@ -16,7 +16,7 @@
   <link rel="manifest" href="/myhub-homepage/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,500;1,600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://dannywebb014.github.io/lifeos/fonts.css">
 
   <style>
     /* My Hub theme — same neutrals and type as food., train. and breathe. */
@@ -40,8 +40,8 @@
       --media-logo: #8a6a12; --media-accent: #b08a1c;
       --cal-logo: #2f6aa3; --cal-accent: #3b7bbf;
 
-      --disp: 'Lora', Georgia, serif;
-      --body: 'Source Sans 3', system-ui, -apple-system, Helvetica, Arial, sans-serif;
+      --disp: var(--hub-head, 'Lora', Georgia, serif);
+      --body: var(--hub-body, 'Source Sans 3', system-ui, -apple-system, Helvetica, Arial, sans-serif);
       color-scheme: light;
     }
     @media (prefers-color-scheme: dark) {
@@ -93,7 +93,7 @@
       font-family: var(--disp);
       font-size: clamp(3.5rem, 11vw, 6rem);
       font-weight: 600;
-      font-style: italic;
+      font-style: var(--hub-logo-style, italic);
       letter-spacing: -0.03em;
       line-height: 1.1;
       text-align: center;
@@ -149,7 +149,7 @@
       font-family: var(--disp);
       font-size: 32px;
       font-weight: 600;
-      font-style: italic;
+      font-style: var(--hub-logo-style, italic);
       letter-spacing: -0.5px;
       line-height: 1.1;
       color: var(--logo);
@@ -173,7 +173,7 @@
     /* ── today. ── */
     .today { width:100%; max-width:860px; margin:0 0 1.75rem; }
     .today-head { display:flex; align-items:baseline; gap:.6rem; margin:0 .25rem .5rem; }
-    .today-head h2 { font-family:var(--disp); font-style:italic; font-size:1.5rem; font-weight:600; margin:0; letter-spacing:-.5px; }
+    .today-head h2 { font-family:var(--disp); font-style:var(--hub-logo-style, italic); font-size:1.5rem; font-weight:600; margin:0; letter-spacing:-.5px; }
     .today-head h2 .dot { font-style:normal; color:var(--life-accent); }
     .today-head .n { font-size:.8rem; color:var(--muted); font-weight:600; }
     .today-head .acts { margin-left:auto; display:flex; gap:.75rem; }
@@ -190,13 +190,13 @@
     .t-meal-row .t-mins { white-space:nowrap; }
     .t-meal-row:last-child { border-bottom:none; }
     .settings-btn {
-      border:none; background:none; color:var(--muted); font-family:var(--disp); font-style:italic; font-size:1rem;
+      border:none; background:none; color:var(--muted); font-family:var(--disp); font-style:var(--hub-logo-style, italic); font-size:1rem;
       cursor:pointer; padding:.4rem .8rem; margin-top:-1rem;
     }
     .settings-btn:hover { color:var(--text); }
     .t-dinner { display:flex; align-items:center; gap:.65rem; padding:.8rem .1rem; text-decoration:none; color:inherit; border-bottom:1px solid var(--line); }
     .t-dinner:last-child { border-bottom:none; }
-    .t-kind { font-family:var(--disp); font-style:italic; font-size:.95rem; color:var(--food-logo); }
+    .t-kind { font-family:var(--disp); font-style:var(--hub-logo-style, italic); font-size:.95rem; color:var(--food-logo); }
     .t-meal { font-weight:600; }
     .t-mins { margin-left:auto; font-size:.8rem; color:var(--muted); }
     .t-row { display:flex; align-items:flex-start; gap:.7rem; padding:.7rem .1rem; border-bottom:1px solid var(--line); }
@@ -223,7 +223,7 @@
     dialog { border:1px solid var(--line); border-radius:14px; background:var(--surface); color:var(--text); padding:0; width:min(400px, calc(100% - 2rem)); box-shadow:0 18px 50px rgba(0,0,0,.25); }
     dialog::backdrop { background:rgba(0,0,0,.45); }
     dialog form { padding:1.25rem; }
-    dialog h3 { font-family:var(--disp); font-style:italic; font-size:1.35rem; margin:0 0 .3rem; font-weight:600; }
+    dialog h3 { font-family:var(--disp); font-style:var(--hub-logo-style, italic); font-size:1.35rem; margin:0 0 .3rem; font-weight:600; }
     dialog p.sub { color:var(--muted); font-size:.85rem; margin:0 0 1rem; }
     label.f { display:block; font-size:.72rem; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--muted); margin:.7rem 0 .3rem; }
     .field { width:100%; padding:.6rem .75rem; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-family:var(--body); font-size:1rem; }
