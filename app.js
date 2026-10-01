@@ -227,7 +227,7 @@ function paint() {
   for (const meal of meals) {
     const line = document.createElement("a");
     line.className = "t-meal-row";
-    line.href = "https://food-hub-weld-five.vercel.app/";
+    line.href = "https://dannywebb014.github.io/foodhub/";
     line.target = "_blank";
     line.rel = "noopener noreferrer";
     line.innerHTML = `<span class="t-kind"></span><span class="t-meal"></span><span class="t-mins">${meal.minutes ? `${meal.minutes} min` : ""}</span>`;
