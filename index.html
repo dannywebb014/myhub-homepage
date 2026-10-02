@@ -38,6 +38,7 @@
       --tasks-logo: #1f5f5c; --tasks-accent: #2f8a84;
       --places-logo: #8f2f52; --places-accent: #b8436d;
       --media-logo: #8a6a12; --media-accent: #b08a1c;
+      --week-logo: #5a4fa0; --week-accent: #7d6fd6;
       --cal-logo: #2f6aa3; --cal-accent: #3b7bbf;
 
       --disp: var(--hub-head, 'Lora', Georgia, serif);
@@ -61,6 +62,7 @@
         --tasks-logo: #8fd0c9; --tasks-accent: #4fa8a0;
         --places-logo: #f0a8c4; --places-accent: #e0789f;
         --media-logo: #ecd27a; --media-accent: #d4b23c;
+        --week-logo: #c9c1ff; --week-accent: #b4a9ff;
         --cal-logo: #a9cdf2; --cal-accent: #6fa8e0;
         color-scheme: dark;
       }
@@ -164,6 +166,7 @@
     .card-tasks { --logo: var(--tasks-logo); --accent: var(--tasks-accent); }
     .card-places { --logo: var(--places-logo); --accent: var(--places-accent); }
     .card-media { --logo: var(--media-logo); --accent: var(--media-accent); }
+    .card-week { --logo: var(--week-logo); --accent: var(--week-accent); }
     .card-calendar { --logo: var(--cal-logo); --accent: var(--cal-accent); flex-direction: column; gap: .45rem; }
     .card-sub { font-size: .85rem; color: var(--muted); line-height: 1.35; max-width: 100%; }
     .card-sub b { color: var(--text); font-weight: 600; }
@@ -321,6 +324,12 @@
        target="_blank" rel="noopener noreferrer"
        aria-label="Open media.">
       <span class="card-name">media<span class="dot">.</span></span>
+    </a>
+
+    <a href="https://dannywebb014.github.io/lifeos/week/" class="card card-week"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="Open week.">
+      <span class="card-name">week<span class="dot">.</span></span>
     </a>
 
   </nav>
