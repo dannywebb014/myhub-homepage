@@ -7,6 +7,8 @@
 
 // The client and the sign-in are shared by every hub app (lifeos/auth.js).
 import { supabase, requireAuth, signOut } from "/lifeos/auth.js";
+// Search across the hub apps: the magnifying glass, or S, / or ⌘K.
+import { mountSpotlight } from "/lifeos/spotlight.js";
 
 const SPACES = [
   { id: "my", label: "my space." },
@@ -329,10 +331,7 @@ async function start(session) {
 }
 
 $("settings-open").addEventListener("click", openSettings);
-// "/" opens search. from anywhere on the page that isn't a text box.
-document.addEventListener("keydown", (e) => {
-  if (e.key === "/" && !e.target.closest("input, textarea, dialog[open]")) { e.preventDefault(); location.href = "/lifeos/search/"; }
-});
+
 // Signs out of every hub app on this device.
 $("account-btn").addEventListener("click", () => signOut());
 $("settings-form").addEventListener("submit", (event) => {
@@ -352,3 +351,4 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
 
 // Signing in happens once, on the lifeOS. sign-in page.
 start(await requireAuth());
+mountSpotlight();
